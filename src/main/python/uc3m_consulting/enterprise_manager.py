@@ -1,5 +1,5 @@
 """Module """
-# from .enterprise_management_exception import EnterpriseManagementException
+from .enterprise_management_exception import EnterpriseManagementException
 from .enterprise_project import EnterpriseProject
 from validarnif import validar_cif
 
@@ -14,26 +14,33 @@ class EnterpriseManager:
 
     def register_project(self, company_cif: str, project_achronym: str, operation_name: str, department: str, date: str,
                          budget: float):
-        """
-        # Cadena string
-        if type(company_cif) != str:
-            raise EnterpriseManagementException("CIF debe ser una cadena")
 
-        # Validación del CIF
+        #1. Comprobación de los tipos de dato
+        if type(company_cif) is not str:
+            raise EnterpriseManagementException("El CIF de la compañía debe ser una cadena de texto")
+
+        if type(project_achronym) is not str:
+            raise EnterpriseManagementException("El acrónimo del proyecto debe ser una cadena de texto")
+
+        if type(operation_name) is not str:
+            raise EnterpriseManagementException("El nombre de la operación debe ser una cadena de texto")
+
+        if type(department) is not str:
+            raise EnterpriseManagementException("El departamento debe ser una cadena de texto")
+
+        if type(date) is not str:
+            raise EnterpriseManagementException("La fecha debe ser una cadena de texto")
+
+        if type(budget) not in (float, int):
+            raise EnterpriseManagementException("El presupuesto debe ser un valor numérico decimal")
+
+        #2.Validación del CIF(incluye todos los formatos inválidos ya que es na función auxiliar)
+
         if not self.validate_cif(company_cif):
-            raise EnterpriseManagementException("CIF inválido")
+            raise EnterpriseManagementException("El CIF proporcionado no es válido")
 
-        if type(project_achronym) != str:
-            raise EnterpriseManagementException("Achronym must be a string")
 
-            # Comprobamos la longitud (entre 5 y 10)
-        if len(project_achronym) < 5 or len(project_achronym) > 10:
-            raise EnterpriseManagementException("Invalid achronym length")
 
-            # Comprobamos que solo tenga letras y números (Alfanumérico)
-        if not project_achronym.isalnum():
-            raise EnterpriseManagementException("Invalid achronym characters")
-        """
         nuevo_proyecto = EnterpriseProject(
             company_cif=company_cif,
             project_acronym=project_achronym,
