@@ -1,0 +1,20 @@
+[
+  {
+    "idTest": "TC1",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyect In",
+    "department": "HR",
+    "date": "01/01/2026",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC2",
+    "companyCIF": "A1234567B",
+    "projectAcronym": "UC3MRRRHHH",
+    "operationName": "Proyecto de Gestion Integral 1",
+    "department": "LOGISTICS",
+    "date": "11/02/2026",
+    "budget": 1000000.00
+  }
+  ]
