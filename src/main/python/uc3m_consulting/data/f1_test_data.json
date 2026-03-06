@@ -14,7 +14,250 @@
     "projectAcronym": "UC3MRRRHHH",
     "operationName": "Proyecto de Gestion Integral 1",
     "department": "LOGISTICS",
-    "date": "11/02/2026",
+    "date": "12/05/2026",
     "budget": 1000000.00
+  },
+
+
+
+
+    {
+    "idTest": "TC3",
+    "companyCIF": "500.23",
+    "projectAcronym": "500.23",
+    "operationName": "500.23",
+    "department": "500.23",
+    "date": "500.23",
+    "budget": "mil"
+  },
+    {
+    "idTest": "TC4",
+    "companyCIF": "Q2818029",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC5",
+    "companyCIF": "Q28180299G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC6",
+    "companyCIF": "A1234567Z",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC7",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3M",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC8",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MRRRHHH1",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC9",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "uc3mr",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC10",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Corto",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC11",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Esta operacion tiene mas de treinta",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC12",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "IT",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC13",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "32/03/2026",
+    "budget": 50000.00
+  },
+    {
+    "idTest": "TC14",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "01/10/2024",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC15",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "01/01/2025",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC16",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 49999.99
+  },
+
+  {
+    "idTest": "TC17",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 60000123
   }
-  ]
+
+
+
+
+  {
+    "idTest": "TC18",
+    "companyCIF": "A2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },{
+    "idTest": "TC19",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC20",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC21",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3M RRH",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC22",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3M-RRH",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC23",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "2026 -03-31",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC24",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "00/03/2026",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC25",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2029",
+    "budget": 50000.00
+  },
+  {
+    "idTest": "TC26",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 100000.1
+  },
+  {
+    "idTest": "TC27",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 1000000.01
+  },
+  {
+    "idTest": "TC28",
+    "companyCIF": "Q2818029G",
+    "projectAcronym": "UC3MR",
+    "operationName": "Proyecto In",
+    "department": "HR",
+    "date": "31/03/2026",
+    "budget": 50000.00
+  }
+
+]
