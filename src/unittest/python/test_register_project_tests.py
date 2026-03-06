@@ -58,6 +58,6 @@ class TestEnterpriseManager(unittest.TestCase):
                             input_data["date"],
                             input_data["budget"]
                         )
-                    pass  # Quita este pass cuando metas tu lógica real
+                      # Quita este pass cuando metas tu lógica real
 if __name__ == '__main__':
     unittest.main()
