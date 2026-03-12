@@ -22,7 +22,7 @@ class EnterpriseProject:
         self.__time_stamp = datetime.timestamp(justnow)
 
     def __str__(self):
-        return "Project:" + json.dumps(self.__dict__)
+        return "Project:" + json.dumps(self.__dict__, default=str)
 
     def to_json(self):
         """returns the object information in json format"""

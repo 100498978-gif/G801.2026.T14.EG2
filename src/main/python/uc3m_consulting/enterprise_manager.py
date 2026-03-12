@@ -2,6 +2,8 @@
 from .enterprise_management_exception import EnterpriseManagementException
 from .enterprise_project import EnterpriseProject
 from validarnif import validar_cif
+from datetime import datetime
+from decimal import Decimal
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -60,20 +62,21 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Formato invalido")
 
         # 6. Validación Presupuesto (TC28 a TC32)
-        if not isinstance(budget, (float, int)):
+        if not isinstance(budget, (int, float, Decimal)):
             raise EnterpriseManagementException("Tiene que ser un numero")
 
-        # Validar formato de 2 decimales exactos (TC31, TC32)
-        # Convertimos a string para comprobar la precisión
-        budget_str = str(budget)
-        if "." in budget_str and len(budget_str.split(".")[1]) != 2:
+        if isinstance(budget, Decimal):
+            if budget.as_tuple().exponent != -2:
+                raise EnterpriseManagementException("Budget necesita dos decimales")
+        else:
+            # Por si acaso llegara un entero o un float normal
             raise EnterpriseManagementException("Budget necesita dos decimales")
 
         # Rangos (TC29, TC30)
         if budget < 50000.00 or budget > 1000000.00:
             raise EnterpriseManagementException("Budget fuera de rango")
 
-        # 7. Verificación Duplicados (TC33)
+        # asi no lo vamos a hacer, lo vamos a hacer con jsons
         nuevo_proyecto = EnterpriseProject(
             company_cif=company_cif,
             project_acronym=project_achronym,
