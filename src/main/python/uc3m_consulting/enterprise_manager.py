@@ -15,32 +15,65 @@ class EnterpriseManager:
     def register_project(self, company_cif: str, project_achronym: str, operation_name: str, department: str, date: str,
                          budget: float):
 
-        #1. Comprobación de los tipos de dato
-        if type(company_cif) is not str:
-            raise EnterpriseManagementException("El CIF de la compañía debe ser una cadena de texto")
-
-        if type(project_achronym) is not str:
-            raise EnterpriseManagementException("El acrónimo del proyecto debe ser una cadena de texto")
-
-        if type(operation_name) is not str:
-            raise EnterpriseManagementException("El nombre de la operación debe ser una cadena de texto")
-
-        if type(department) is not str:
-            raise EnterpriseManagementException("El departamento debe ser una cadena de texto")
-
-        if type(date) is not str:
-            raise EnterpriseManagementException("La fecha debe ser una cadena de texto")
-
-        if type(budget) not in (float, int):
-            raise EnterpriseManagementException("El presupuesto debe ser un valor numérico decimal")
-
-        #2.Validación del CIF(incluye todos los formatos inválidos ya que es na función auxiliar)
-
+        # 1. Validación CIF (TC3, TC4, TC5, TC6, TC7)
+        if type(company_cif) != str:
+            raise EnterpriseManagementException("CIF debe ser una cadena")
         if not self.validate_cif(company_cif):
-            raise EnterpriseManagementException("El CIF proporcionado no es válido")
+            raise EnterpriseManagementException("CIF inválido")
 
+        # 2. Validación Acrónimo (TC8, TC9, TC10, TC11, TC12, TC13)
+        if type(project_achronym) != str:
+            raise EnterpriseManagementException("Achronym debe ser una cadena")
+        if len(project_achronym) < 5 or len(project_achronym) > 10:
+            raise EnterpriseManagementException("Invalid achronym length")
+        if not project_achronym.isupper():
+            raise EnterpriseManagementException("achronym inválido (debe ser mayúsculas)")
+        if not project_achronym.isalnum() or " " in project_achronym:
+            raise EnterpriseManagementException("achronym inválido")
 
+        # 3. Validación Nombre Operación (TC14, TC15, TC16)
+        if type(operation_name) != str:
+            raise EnterpriseManagementException("Operation debe ser una cadena")
+        if len(operation_name) < 10 or len(operation_name) > 30:
+            raise EnterpriseManagementException("Longuitud de operation inválida")
 
+        # 4. Validación Departamento (TC17, TC18)
+        allowed_depts = ["HR", "LOGISTICS", "MARKETING", "SALES"]  # Basado en tus TCs
+        if type(department) != str:
+            raise EnterpriseManagementException("Department debe ser una cadena")
+        if department not in allowed_depts:
+            raise EnterpriseManagementException("Department inválido")
+
+        # 5. Validación Fecha (TC19 a TC27)
+        if type(date) != str:
+            raise EnterpriseManagementException("Date debe ser una cadena")
+
+        # Formato y rangos (TC20, TC21, TC22, TC23, TC24, TC25, TC26)
+        try:
+            fecha_dt = datetime.strptime(date, "%d/%m/%Y")
+            if not (2025 <= fecha_dt.year <= 2028):
+                raise EnterpriseManagementException("año fuera del rango")
+            # TC27: Fecha anterior a hoy (Simulando 2026 como 'hoy' según enunciado)
+            if fecha_dt < datetime.now():
+                raise EnterpriseManagementException("No puede ser un día en el pasado")
+        except ValueError:
+            raise EnterpriseManagementException("Formato invalido")
+
+        # 6. Validación Presupuesto (TC28 a TC32)
+        if not isinstance(budget, (float, int)):
+            raise EnterpriseManagementException("Tiene que ser un numero")
+
+        # Validar formato de 2 decimales exactos (TC31, TC32)
+        # Convertimos a string para comprobar la precisión
+        budget_str = str(budget)
+        if "." in budget_str and len(budget_str.split(".")[1]) != 2:
+            raise EnterpriseManagementException("Budget necesita dos decimales")
+
+        # Rangos (TC29, TC30)
+        if budget < 50000.00 or budget > 1000000.00:
+            raise EnterpriseManagementException("Budget fuera de rango")
+
+        # 7. Verificación Duplicados (TC33)
         nuevo_proyecto = EnterpriseProject(
             company_cif=company_cif,
             project_acronym=project_achronym,
@@ -49,6 +82,11 @@ class EnterpriseManager:
             starting_date=date,
             project_budget=budget
         )
+
+        if nuevo_proyecto.project_id in self.__projects_list:
+            raise EnterpriseManagementException("Proyecto duplicado")
+
+        self.__projects_list.append(nuevo_proyecto.project_id)
 
         # 3. DEVOLVEMOS EL MD5
         return nuevo_proyecto.project_id
