@@ -1,83 +1,115 @@
-"""Module """
-from .enterprise_management_exception import EnterpriseManagementException
-from .enterprise_project import EnterpriseProject
-from validarnif import validar_cif
+"""Enterprise manager module."""
+import json
+import os
+import re
 from datetime import datetime
 from decimal import Decimal
 
+from validarnif import validar_cif
+
+from .enterprise_management_exception import EnterpriseManagementException
+from .enterprise_project import EnterpriseProject
+
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
-    def __init__(self):
-        # Lista en memoria para controlar IDs duplicados durante la ejecución actual
-        self.__projects_list = []
+    def __init__(self, projects_store_path=None):
+        """Create the manager and configure the projects persistence path."""
+        default_store = os.path.join(
+            os.path.dirname(__file__),
+            "data",
+            "corporate_operations.json"
+        )
+        self.__projects_store_path = projects_store_path or default_store
 
     @staticmethod
     def validate_cif(cif: str):
+        """Validate a Spanish CIF."""
         return validar_cif(cif)
 
-    def register_project(self, company_cif: str, project_achronym: str, operation_name: str, department: str, date: str,
-                         budget: float):
+    def __load_projects(self):
+        """Load stored projects from the JSON persistence file."""
+        if not os.path.exists(self.__projects_store_path):
+            return []
 
-        # 1. Validación CIF (TC3, TC4, TC5, TC6, TC7)
-        if type(company_cif) != str:
+        try:
+            with open(self.__projects_store_path, encoding="utf-8", mode="r") as json_file:
+                stored_projects = json.load(json_file)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise EnterpriseManagementException("Error al cargar proyectos") from exc
+
+        if not isinstance(stored_projects, list):
+            raise EnterpriseManagementException("Formato de almacenamiento invalido")
+        return stored_projects
+
+    def __save_projects(self, stored_projects):
+        """Persist the projects list in JSON format."""
+        parent_dir = os.path.dirname(self.__projects_store_path)
+        if parent_dir:
+            os.makedirs(parent_dir, exist_ok=True)
+
+        try:
+            with open(self.__projects_store_path, encoding="utf-8", mode="w") as json_file:
+                json.dump(stored_projects, json_file, indent=2)
+        except OSError as exc:
+            raise EnterpriseManagementException("Error al guardar proyectos") from exc
+
+    def register_project(
+            self,
+            company_cif: str,
+            project_achronym: str,
+            operation_name: str,
+            department: str,
+            date: str,
+            budget: float):
+        """Register a project, persist it and return its md5 project id."""
+
+        if not isinstance(company_cif, str):
             raise EnterpriseManagementException("CIF debe ser una cadena")
         if not self.validate_cif(company_cif):
             raise EnterpriseManagementException("CIF inválido")
 
-        # 2. Validación Acrónimo (TC8, TC9, TC10, TC11, TC12, TC13)
-        if type(project_achronym) != str:
+        if not isinstance(project_achronym, str):
             raise EnterpriseManagementException("Achronym debe ser una cadena")
-        if len(project_achronym) < 5 or len(project_achronym) > 10:
+        if not re.fullmatch(r"[A-Z0-9]{5,10}", project_achronym):
             raise EnterpriseManagementException("Invalid achronym length")
-        if not project_achronym.isupper():
-            raise EnterpriseManagementException("achronym inválido (debe ser mayúsculas)")
-        if not project_achronym.isalnum() or " " in project_achronym:
-            raise EnterpriseManagementException("achronym inválido")
 
-        # 3. Validación Nombre Operación (TC14, TC15, TC16)
-        if type(operation_name) != str:
+        if not isinstance(operation_name, str):
             raise EnterpriseManagementException("Operation debe ser una cadena")
         if len(operation_name) < 10 or len(operation_name) > 30:
             raise EnterpriseManagementException("Longuitud de operation inválida")
 
-        # 4. Validación Departamento (TC17, TC18)
-        allowed_depts = ["HR", "LOGISTICS", "MARKETING", "SALES"]  # Basado en tus TCs
-        if type(department) != str:
+        allowed_depts = ["HR", "FINANCE", "LEGAL", "LOGISTICS"]
+        if not isinstance(department, str):
             raise EnterpriseManagementException("Department debe ser una cadena")
         if department not in allowed_depts:
             raise EnterpriseManagementException("Department inválido")
 
-        # 5. Validación Fecha (TC19 a TC27)
-        if type(date) != str:
+        if not isinstance(date, str):
             raise EnterpriseManagementException("Date debe ser una cadena")
 
-        # Formato y rangos (TC20, TC21, TC22, TC23, TC24, TC25, TC26)
         try:
-            fecha_dt = datetime.strptime(date, "%d/%m/%Y")
-            if not (2025 <= fecha_dt.year <= 2028):
+            fecha_dt = datetime.strptime(date, "%d/%m/%Y").date()
+            if fecha_dt.year < 2025 or fecha_dt.year >= 2028:
                 raise EnterpriseManagementException("año fuera del rango")
-            # TC27: Fecha anterior a hoy (Simulando 2026 como 'hoy' según enunciado)
-            if fecha_dt < datetime.now():
+            if fecha_dt < datetime.now().date():
                 raise EnterpriseManagementException("No puede ser un día en el pasado")
-        except ValueError:
-            raise EnterpriseManagementException("Formato invalido")
+        except ValueError as exc:
+            raise EnterpriseManagementException("Formato invalido") from exc
 
-        # 6. Validación Presupuesto (TC28 a TC32)
-        if not isinstance(budget, (int, float, Decimal)):
+        if not isinstance(budget, Decimal):
             raise EnterpriseManagementException("Tiene que ser un numero")
-
-        if isinstance(budget, Decimal):
-            if budget.as_tuple().exponent != -2:
-                raise EnterpriseManagementException("Budget necesita dos decimales")
-        else:
-            # Por si acaso llegara un entero o un float normal
+        if budget.as_tuple().exponent != -2:
             raise EnterpriseManagementException("Budget necesita dos decimales")
-
-        # Rangos (TC29, TC30)
-        if budget < 50000.00 or budget > 1000000.00:
+        if budget < Decimal("50000.00") or budget > Decimal("1000000.00"):
             raise EnterpriseManagementException("Budget fuera de rango")
 
-        # asi no lo vamos a hacer, lo vamos a hacer con jsons
+        stored_projects = self.__load_projects()
+        for stored_project in stored_projects:
+            if (
+                    stored_project.get("company_cif") == company_cif
+                    and stored_project.get("project_description") == operation_name):
+                raise EnterpriseManagementException("Proyecto duplicado")
+
         nuevo_proyecto = EnterpriseProject(
             company_cif=company_cif,
             project_acronym=project_achronym,
@@ -87,10 +119,7 @@ class EnterpriseManager:
             project_budget=budget
         )
 
-        if nuevo_proyecto.project_id in self.__projects_list:
-            raise EnterpriseManagementException("Proyecto duplicado")
+        stored_projects.append(nuevo_proyecto.to_json())
+        self.__save_projects(stored_projects)
 
-        self.__projects_list.append(nuevo_proyecto.project_id)
-
-        # 3. DEVOLVEMOS EL MD5
         return nuevo_proyecto.project_id
