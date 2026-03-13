@@ -44,6 +44,7 @@ class TestEnterpriseManager(unittest.TestCase):
         """Delete temporary resources created for the test suite."""
         shutil.rmtree(cls.__temp_dir, ignore_errors=True)
 
+
     def setUp(self):
         """Start each test with an empty project store."""
         if os.path.exists(self.__projects_store_path):
@@ -52,90 +53,136 @@ class TestEnterpriseManager(unittest.TestCase):
     # 2. UN ÚNICO MÉTODO PARA TODOS LOS CASOS VÁLIDOS (OK)
     def test_casos_validos_ok(self):
         """Verify that every valid input returns and stores one MD5 project id."""
-        # Filtramos solo los IDs que en tu Excel son "VALID"
-        casos_validos = ["TC1", "TC2", "TC33"]
+        # 1. SOLO TC1 y TC2 son válidos. TC33 queda fuera.
+        casos_validos = ["TC1", "TC2"]
+
+        # 2. Limpiamos el JSON UNA SOLA VEZ antes de empezar el bucle
+        if os.path.exists(self.__projects_store_path):
+            os.remove(self.__projects_store_path)
 
         for input_data in self.__f1_test_data:
             if input_data["idTest"] in casos_validos:
-                # Usamos subtest para que nos avise qué ID exacto está evaluando
                 with self.subTest(i=input_data["idTest"]):
-                    if os.path.exists(self.__projects_store_path):
-                        os.remove(self.__projects_store_path)
-
                     en_manager = EnterpriseManager(
                         projects_store_path=self.__projects_store_path
                     )
+                    presupuesto = Decimal(str(input_data["budget"]))
+
+                    # Guardamos el proyecto
                     result = en_manager.register_project(
                         input_data["companyCIF"],
                         input_data["projectAcronym"],
                         input_data["operationName"],
                         input_data["department"],
                         input_data["date"],
-                        input_data["budget"]
+                        presupuesto
                     )
+
                     self.assertEqual(len(result), 32)
-                    patron_md5 = r"^[a-f0-9]{32}$"
-                    self.assertRegex(result.lower(), patron_md5)
+                    self.assertRegex(result.lower(), r"^[a-f0-9]{32}$")
 
-                    with open(
-                            self.__projects_store_path,
-                            encoding="utf-8",
-                            mode="r") as json_file:
-                        stored_projects = json.load(json_file)
+        # 3. AL TERMINAR EL BUCLE, COMPROBAMOS QUE HAY EXACTAMENTE 2 GUARDADOS
+        with open(self.__projects_store_path, encoding="utf-8", mode="r") as json_file:
+            stored_projects = json.load(json_file)
 
-                    self.assertEqual(len(stored_projects), 1)
-                    self.assertEqual(
-                        stored_projects[0]["company_cif"],
-                        input_data["companyCIF"]
-                    )
+        self.assertEqual(len(stored_projects), 2, "Deberían haberse guardado TC1 y TC2.")
 
     # 3. UN ÚNICO MÉTODO PARA TODOS LOS CASOS INVÁLIDOS (KO)
     def test_casos_invalidos_ko(self):
-        """Verify that every invalid input raises EnterpriseManagementException."""
-        casos_validos = ["TC1", "TC2", "TC33"]
+        """Verify that every invalid input raises EnterpriseManagementException and is NOT saved."""
+        # Estos casos ya los hemos probado en los tests OK y en el de duplicados
+        casos_excluidos = ["TC1", "TC2", "TC33"]
 
         for input_data in self.__f1_test_data:
-            if input_data["idTest"] not in casos_validos:
+            if input_data["idTest"] not in casos_excluidos:
                 with self.subTest(i=input_data["idTest"]):
-                    # Le decimos al test que ESPERAMOS que salte tu excepción
+
+                    # 1. Empezamos con el JSON borrado para asegurarnos de que no hay basura
+                    if os.path.exists(self.__projects_store_path):
+                        os.remove(self.__projects_store_path)
+
+                    en_manager = EnterpriseManager(
+                        projects_store_path=self.__projects_store_path
+                    )
+
+                    # 2. Manejo de datos maliciosos
+                    # Intentamos pasarlo a Decimal. Si falla (porque el test KO tiene letras
+                    # u otro tipo de dato en el budget), lo dejamos como está para que el manager salte.
+                    try:
+                        presupuesto = Decimal(str(input_data["budget"]))
+                    except Exception:
+                        presupuesto = input_data["budget"]
+
+                    # 3. Comprobamos que salta EXACTAMENTE tu excepción personalizada
                     with self.assertRaises(EnterpriseManagementException):
-                        en_manager = EnterpriseManager(
-                            projects_store_path=self.__projects_store_path
-                        )
                         en_manager.register_project(
                             input_data["companyCIF"],
                             input_data["projectAcronym"],
                             input_data["operationName"],
                             input_data["department"],
                             input_data["date"],
-                            input_data["budget"]
+                            presupuesto
                         )
 
+                    # 4. COMPROBAMOS QUE NO SE HA GUARDADO NADA
+                    # Si el archivo se creó de todos modos, nos aseguramos de que esté vacío
+                    if os.path.exists(self.__projects_store_path):
+                        with open(self.__projects_store_path, encoding="utf-8", mode="r") as json_file:
+                            try:
+                                stored_projects = json.load(json_file)
+                                self.assertEqual(
+                                    len(stored_projects),
+                                    0,
+                                    f"¡Error! El test {input_data['idTest']} era inválido pero se guardó en el JSON."
+                                )
+                            except json.JSONDecodeError:
+                                # Si el archivo existe pero está totalmente vacío (no es un JSON válido),
+                                # también significa que no se ha guardado el proyecto, así que está bien.
+                                pass
+
     def test_proyecto_duplicado_ko(self):
-        """Verify that duplicated company and operation name are rejected."""
-        duplicate_case = next(
-            item for item in self.__f1_test_data if item["idTest"] == "TC33"
-        )
+        """Verify that TC33 is rejected because it is a duplicate of TC1."""
+        # Limpiamos el entorno para este test
+        if os.path.exists(self.__projects_store_path):
+            os.remove(self.__projects_store_path)
+
         en_manager = EnterpriseManager(projects_store_path=self.__projects_store_path)
 
+        # 1. Buscamos los datos exactos de TC1 y TC33 en el JSON
+        tc1_data = next(item for item in self.__f1_test_data if item["idTest"] == "TC1")
+        tc33_data = next(item for item in self.__f1_test_data if item["idTest"] == "TC33")
+
+        # 2. Guardamos TC1 (Esto TIENE que funcionar porque el archivo está vacío)
         en_manager.register_project(
-            duplicate_case["companyCIF"],
-            duplicate_case["projectAcronym"],
-            duplicate_case["operationName"],
-            duplicate_case["department"],
-            duplicate_case["date"],
-            duplicate_case["budget"]
+            tc1_data["companyCIF"],
+            tc1_data["projectAcronym"],
+            tc1_data["operationName"],
+            tc1_data["department"],
+            tc1_data["date"],
+            Decimal(str(tc1_data["budget"]))
         )
 
-        with self.assertRaises(EnterpriseManagementException):
+        # 3. Intentamos guardar TC33. Aquí le decimos a Python:
+        # "Espero que esto lance un EnterpriseManagementException"
+        with self.assertRaises(EnterpriseManagementException) as context:
             en_manager.register_project(
-                duplicate_case["companyCIF"],
-                duplicate_case["projectAcronym"],
-                duplicate_case["operationName"],
-                duplicate_case["department"],
-                duplicate_case["date"],
-                duplicate_case["budget"]
+                tc33_data["companyCIF"],
+                tc33_data["projectAcronym"],
+                tc33_data["operationName"],
+                tc33_data["department"],
+                tc33_data["date"],
+                Decimal(str(tc33_data["budget"]))
             )
+
+        # Opcional: Podemos comprobar que el mensaje de error es exactamente el de duplicado
+        self.assertEqual(str(context.exception), "Proyecto duplicado")
+
+        with open(self.__projects_store_path, encoding="utf-8", mode="r") as json_file:
+            stored_projects = json.load(json_file)
+
+        # COMPRUEBA QUE SOLO HAY 1 (EL TC1), EL TC33 FUE RECHAZADO:
+        self.assertEqual(len(stored_projects), 1, "Solo debería estar guardado el TC1.")
+
 
 if __name__ == '__main__':
     unittest.main()
