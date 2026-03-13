@@ -25,7 +25,7 @@ class TestEnterpriseManager(unittest.TestCase):
     # 2. UN ÚNICO MÉTODO PARA TODOS LOS CASOS VÁLIDOS (OK)
     def test_casos_validos_OK(self):
         # Filtramos solo los IDs que en tu Excel son "VALID"
-        casos_validos = ["TC1", "TC2"]
+        casos_validos = ["TC1", "TC2", "TC33"]
 
         for input_data in self.__f1_test_data:
             if input_data["idTest"] in casos_validos:
@@ -42,7 +42,7 @@ class TestEnterpriseManager(unittest.TestCase):
 
     # 3. UN ÚNICO MÉTODO PARA TODOS LOS CASOS INVÁLIDOS (KO)
     def test_casos_invalidos_KO(self):
-        casos_validos = ["TC1", "TC2"]
+        casos_validos = ["TC1", "TC2", "TC33"]
 
         for input_data in self.__f1_test_data:
             if input_data["idTest"] not in casos_validos:

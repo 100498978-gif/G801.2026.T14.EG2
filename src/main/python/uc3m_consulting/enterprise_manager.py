@@ -8,7 +8,8 @@ from decimal import Decimal
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
     def __init__(self):
-        pass
+        # Lista en memoria para controlar IDs duplicados durante la ejecución actual
+        self.__projects_list = []
 
     @staticmethod
     def validate_cif(cif: str):
