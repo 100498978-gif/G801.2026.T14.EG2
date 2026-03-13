@@ -1,10 +1,11 @@
-"""MODULE: transfer_request. Contains the transfer request class"""
+"""Enterprise project entity."""
 import hashlib
 import json
 from datetime import datetime, timezone
+from decimal import Decimal
 
 class EnterpriseProject:
-    """Class representing a transfer request"""
+    """Class representing an enterprise project."""
     def __init__(self,
                  company_cif: str,
                  project_acronym: str,
@@ -22,15 +23,33 @@ class EnterpriseProject:
         self.__time_stamp = datetime.timestamp(justnow)
 
     def __str__(self):
-        return "Project:" + json.dumps(self.__dict__, default=str)
+        return json.dumps(self.to_json(), default=str, sort_keys=True)
 
-    def to_json(self):
-        """returns the object information in json format"""
+    def __signature_payload(self):
+        budget_value = self.__project_budget
+        if isinstance(budget_value, Decimal):
+            budget_value = format(budget_value, ".2f")
+
         return {
             "company_cif": self.__company_cif,
             "project_description": self.__project_description,
             "project_acronym": self.__project_achronym,
-            "project_budget": self.__project_budget,
+            "project_budget": budget_value,
+            "department": self.__department,
+            "starting_date": self.__starting_date
+        }
+
+    def to_json(self):
+        """returns the object information in json format"""
+        budget_value = self.__project_budget
+        if isinstance(budget_value, Decimal):
+            budget_value = format(budget_value, ".2f")
+
+        return {
+            "company_cif": self.__company_cif,
+            "project_description": self.__project_description,
+            "project_acronym": self.__project_achronym,
+            "project_budget": budget_value,
             "department": self.__department,
             "starting_date": self.__starting_date,
             "time_stamp": self.__time_stamp,
@@ -93,5 +112,6 @@ class EnterpriseProject:
 
     @property
     def project_id(self):
-        """Returns the md5 signature (transfer code)"""
-        return hashlib.md5(str(self).encode()).hexdigest()
+        """Returns the md5 signature based only on the input fields."""
+        payload = json.dumps(self.__signature_payload(), sort_keys=True)
+        return hashlib.md5(payload.encode("utf-8")).hexdigest()
